@@ -7,6 +7,8 @@
     .paths = .{
         "build.zig",
         "build.zig.zon",
-        "src",
+        "assimp",
+        "LICENSE",
+        "README.md",
     },
 }
