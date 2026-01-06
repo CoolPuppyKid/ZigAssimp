@@ -15,6 +15,7 @@ pub fn build(b: *std.Build) !void {
     const optimize = b.standardOptimizeOption(.{});
     const formats = b.option([]const u8, "formats", "Comma separated list of enabled formats or \"all\", for example: STL,3MF,Obj") orelse "";
     const use_double_precision = b.option(bool, "double", "All data will be stored as double values") orelse false;
+    const assimp = b.dependency("assimp", .{});
 
     const lib = b.addLibrary(.{
         .name = "assimp",
@@ -38,14 +39,14 @@ pub fn build(b: *std.Build) !void {
 
     const config_h = b.addConfigHeader(
         .{
-            .style = .{ .cmake = b.path("assimp/include/assimp/config.h.in") },
+            .style = .{ .cmake = assimp.path("include/assimp/config.h.in") },
             .include_path = "assimp/config.h",
         },
         .{ .ASSIMP_DOUBLE_PRECISION = use_double_precision },
     );
     const revision_h = b.addConfigHeader(
         .{
-            .style = .{ .cmake = b.path("assimp/include/assimp/revision.h.in") },
+            .style = .{ .cmake = assimp.path("include/assimp/revision.h.in") },
             .include_path = "assimp/revision.h",
         },
         .{
@@ -62,7 +63,7 @@ pub fn build(b: *std.Build) !void {
     );
     const zlib_config_h = b.addConfigHeader(
         .{
-            .style = .{ .cmake = b.path("assimp/contrib/zlib/zconf.h.in") },
+            .style = .{ .cmake = assimp.path("contrib/zlib/zconf.h.in") },
         },
         .{},
     );
@@ -70,18 +71,18 @@ pub fn build(b: *std.Build) !void {
     lib.root_module.addConfigHeader(config_h);
     lib.root_module.addConfigHeader(revision_h);
     lib.root_module.addConfigHeader(zlib_config_h);
-    lib.root_module.addIncludePath(b.path("assimp/include"));
-    lib.root_module.addIncludePath(lazy_from_path("include", b));
+    lib.root_module.addIncludePath(assimp.path("include"));
+    //lib.root_module.addIncludePath(lazy_from_path("include", b));
 
-    lib.root_module.addIncludePath(b.path("assimp/"));
-    lib.root_module.addIncludePath(b.path("assimp/contrib"));
-    lib.root_module.addIncludePath(b.path("assimp/code"));
-    lib.root_module.addIncludePath(b.path("assimp/contrib/pugixml/src/"));
-    lib.root_module.addIncludePath(b.path("assimp/contrib/rapidjson/include"));
-    lib.root_module.addIncludePath(b.path("assimp/contrib/unzip"));
-    lib.root_module.addIncludePath(b.path("assimp/contrib/utf8cpp/source/"));
-    lib.root_module.addIncludePath(b.path("assimp/contrib/zlib"));
-    lib.root_module.addIncludePath(b.path("assimp/contrib/openddlparser/include"));
+    lib.root_module.addIncludePath(assimp.path(""));
+    lib.root_module.addIncludePath(assimp.path("contrib"));
+    lib.root_module.addIncludePath(assimp.path("code"));
+    lib.root_module.addIncludePath(assimp.path("contrib/pugixml/src/"));
+    lib.root_module.addIncludePath(assimp.path("contrib/rapidjson/include"));
+    lib.root_module.addIncludePath(assimp.path("contrib/unzip"));
+    lib.root_module.addIncludePath(assimp.path("contrib/utf8cpp/source/"));
+    lib.root_module.addIncludePath(assimp.path("contrib/zlib"));
+    lib.root_module.addIncludePath(assimp.path("contrib/openddlparser/include"));
 
     lib.root_module.addCMacro("RAPIDJSON_HAS_STDSTRING", "1");
 
@@ -89,26 +90,26 @@ pub fn build(b: *std.Build) !void {
     lib.installConfigHeader(revision_h);
     lib.installConfigHeader(zlib_config_h);
     lib.installHeadersDirectory(
-        b.path("assimp/include"),
+        assimp.path("include"),
         "",
         .{ .include_extensions = &.{ ".h", ".inl", ".hpp" } },
     );
 
-    lib.installHeadersDirectory(
-        lazy_from_path("assimp/include", b),
-        "",
-        .{ .include_extensions = &.{ ".h", ".inl", ".hpp" } },
-    );
+    //lib.installHeadersDirectory(
+    //    lazy_from_path("include", b),
+    //    "",
+    //    .{ .include_extensions = &.{ ".h", ".inl", ".hpp" } },
+    //);
 
     lib.root_module.addCSourceFiles(.{
-        .root = b.path("assimp/"),
+        .root = assimp.path(""),
         .files = &sources.common,
         .flags = &.{},
     });
 
     inline for (comptime std.meta.declarations(sources.libraries)) |ext_lib| {
         lib.root_module.addCSourceFiles(.{
-            .root = b.path("assimp/"),
+            .root = assimp.path(""),
             .files = &@field(sources.libraries, ext_lib.name),
             .flags = &.{},
         });
@@ -146,7 +147,7 @@ pub fn build(b: *std.Build) !void {
 
         if (enabled) {
             lib.root_module.addCSourceFiles(.{
-                .root = b.path("assimp/"),
+                .root = assimp.path(""),
                 .files = &@field(sources.formats, format_files.name),
                 .flags = &.{},
             });

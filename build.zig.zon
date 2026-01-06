@@ -3,7 +3,12 @@
     .version = "0.0.0",
     .fingerprint = 0x446cce60054e7dd4,
     .minimum_zig_version = "0.15.1",
-    .dependencies = .{},
+    .dependencies = .{
+        .assimp = .{
+            .url = "https://github.com/assimp/assimp/archive/refs/tags/v6.0.2.tar.gz",
+            .hash = "N-V-__8AAAJ5kA56p5bMNoeLrMKx3VwAq6WYAC2_x7in3PU7",
+        },
+    },
     .paths = .{
         "build.zig",
         "build.zig.zon",
