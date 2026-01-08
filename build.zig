@@ -104,7 +104,9 @@ pub fn build(b: *std.Build) !void {
     lib.root_module.addCSourceFiles(.{
         .root = assimp.path(""),
         .files = &sources.common,
-        .flags = &.{},
+        .flags = &.{
+            "-std=c11",
+        },
     });
 
     inline for (comptime std.meta.declarations(sources.libraries)) |ext_lib| {
