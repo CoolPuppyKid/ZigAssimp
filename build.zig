@@ -72,7 +72,7 @@ pub fn build(b: *std.Build) !void {
     lib.root_module.addConfigHeader(revision_h);
     lib.root_module.addConfigHeader(zlib_config_h);
     lib.root_module.addIncludePath(assimp.path("include"));
-    lib.root_module.addIncludePath(b.path("zig-out/include"));
+    lib.root_module.addIncludePath(b.path("zig-out/include/assimp"));
     //lib.root_module.addIncludePath(lazy_from_path("include", b));
 
     lib.root_module.addIncludePath(assimp.path(""));
