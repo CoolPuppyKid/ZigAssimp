@@ -104,17 +104,25 @@ pub fn build(b: *std.Build) !void {
     lib.root_module.addCSourceFiles(.{
         .root = assimp.path(""),
         .files = &sources.common,
-        .flags = &.{
-            "-std=c11",
-        },
+        .flags = &.{},
     });
 
     inline for (comptime std.meta.declarations(sources.libraries)) |ext_lib| {
-        lib.root_module.addCSourceFiles(.{
-            .root = assimp.path(""),
-            .files = &@field(sources.libraries, ext_lib.name),
-            .flags = &.{},
-        });
+        if (std.mem.eql(u8, "zlib", ext_lib.name)) {
+            lib.root_module.addCSourceFiles(.{
+                .root = assimp.path(""),
+                .files = &@field(sources.libraries, ext_lib.name),
+                .flags = &.{
+                    "-std=gnu11",
+                },
+            });
+        } else {
+            lib.root_module.addCSourceFiles(.{
+                .root = assimp.path(""),
+                .files = &@field(sources.libraries, ext_lib.name),
+                .flags = &.{},
+            });
+        }
     }
 
     var enable_all = false;
