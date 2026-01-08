@@ -114,6 +114,7 @@ pub fn build(b: *std.Build) !void {
                 .files = &@field(sources.libraries, ext_lib.name),
                 .flags = &.{
                     "-std=gnu11",
+                    "-D_GNU_SOURCE",
                 },
             });
         } else {
