@@ -105,7 +105,7 @@ pub fn build(b: *std.Build) !void {
     lib.root_module.addCSourceFiles(.{
         .root = assimp.path(""),
         .files = &sources.common,
-        .flags = sources.flags,
+        .flags = &sources.flags,
     });
 
     inline for (comptime std.meta.declarations(sources.libraries)) |ext_lib| {
@@ -113,13 +113,13 @@ pub fn build(b: *std.Build) !void {
             lib.root_module.addCSourceFiles(.{
                 .root = assimp.path(""),
                 .files = &@field(sources.libraries, ext_lib.name),
-                .flags = sources.flags,
+                .flags = &sources.flags,
             });
         } else {
             lib.root_module.addCSourceFiles(.{
                 .root = assimp.path(""),
                 .files = &@field(sources.libraries, ext_lib.name),
-                .flags = sources.flags,
+                .flags = &sources.flags,
             });
         }
     }
@@ -158,7 +158,7 @@ pub fn build(b: *std.Build) !void {
             lib.root_module.addCSourceFiles(.{
                 .root = assimp.path(""),
                 .files = &@field(sources.formats, format_files.name),
-                .flags = sources.flags,
+                .flags = &sources.flags,
             });
         } else {
             const define_importer = b.fmt("ASSIMP_BUILD_NO_{f}_IMPORTER", .{fmtUpperCase(format_files.name)});
