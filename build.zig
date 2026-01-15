@@ -177,6 +177,9 @@ pub fn build(b: *std.Build) !void {
         lib.root_module.addCMacro(define_exporter, "");
     }
 
+    const build_step = b.step("test-build", "Builds assimp");
+    build_step.dependOn(&lib.step);
+
     b.installArtifact(lib);
 }
 
@@ -190,7 +193,6 @@ const unsupported_formats = [_][]const u8{
 
 const sources = struct {
     const flags = [_][]const u8{
-        "-std=gnu11",
         "-D_GNU_SOURCE",
         "-Wall",
         "-Wextra",
