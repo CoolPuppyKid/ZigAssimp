@@ -105,7 +105,7 @@ pub fn build(b: *std.Build) !void {
     lib.root_module.addCSourceFiles(.{
         .root = assimp.path(""),
         .files = &sources.common,
-        .flags = &.{},
+        .flags = sources.flags,
     });
 
     inline for (comptime std.meta.declarations(sources.libraries)) |ext_lib| {
@@ -113,16 +113,13 @@ pub fn build(b: *std.Build) !void {
             lib.root_module.addCSourceFiles(.{
                 .root = assimp.path(""),
                 .files = &@field(sources.libraries, ext_lib.name),
-                .flags = &.{
-                    "-std=gnu11",
-                    "-D_GNU_SOURCE",
-                },
+                .flags = sources.flags,
             });
         } else {
             lib.root_module.addCSourceFiles(.{
                 .root = assimp.path(""),
                 .files = &@field(sources.libraries, ext_lib.name),
-                .flags = &.{},
+                .flags = sources.flags,
             });
         }
     }
@@ -161,7 +158,7 @@ pub fn build(b: *std.Build) !void {
             lib.root_module.addCSourceFiles(.{
                 .root = assimp.path(""),
                 .files = &@field(sources.formats, format_files.name),
-                .flags = &.{},
+                .flags = sources.flags,
             });
         } else {
             const define_importer = b.fmt("ASSIMP_BUILD_NO_{f}_IMPORTER", .{fmtUpperCase(format_files.name)});
@@ -192,6 +189,12 @@ const unsupported_formats = [_][]const u8{
 };
 
 const sources = struct {
+    const flags = [_][]const u8{
+        "-std=gnu11",
+        "-D_GNU_SOURCE",
+        "-Wall",
+        "-Wextra",
+    };
     const common = [_][]const u8{
         "code/CApi/AssimpCExport.cpp",
         "code/CApi/CInterfaceIOWrapper.cpp",
