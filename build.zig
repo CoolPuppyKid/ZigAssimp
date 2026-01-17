@@ -82,14 +82,18 @@ pub fn build(b: *std.Build) !void {
     lib.root_module.addIncludePath(assimp.path("contrib/rapidjson/include"));
     lib.root_module.addIncludePath(assimp.path("contrib/unzip"));
     lib.root_module.addIncludePath(assimp.path("contrib/utf8cpp/source/"));
-    lib.root_module.addIncludePath(assimp.path("contrib/zlib"));
+    if (target.result.os.tag == .windows or target.result.os.tag == .linux) {
+        lib.root_module.addIncludePath(assimp.path("contrib/zlib"));
+    }
     lib.root_module.addIncludePath(assimp.path("contrib/openddlparser/include"));
 
     lib.root_module.addCMacro("RAPIDJSON_HAS_STDSTRING", "1");
 
     lib.installConfigHeader(config_h);
     lib.installConfigHeader(revision_h);
-    lib.installConfigHeader(zlib_config_h);
+    if (target.result.os.tag == .windows or target.result.os.tag == .linux) {
+        lib.installConfigHeader(zlib_config_h);
+    }
     lib.installHeadersDirectory(
         assimp.path("include"),
         "",
@@ -108,13 +112,19 @@ pub fn build(b: *std.Build) !void {
         .flags = &sources.flags,
     });
 
+    if (target.result.os.tag == .macos) {
+        lib.linkSystemLibrary("z");
+    }
+
     inline for (comptime std.meta.declarations(sources.libraries)) |ext_lib| {
         if (std.mem.eql(u8, "zlib", ext_lib.name)) {
-            lib.root_module.addCSourceFiles(.{
-                .root = assimp.path(""),
-                .files = &@field(sources.libraries, ext_lib.name),
-                .flags = &sources.flags,
-            });
+            if (target.result.os.tag == .windows or target.result.os.tag == .linux) {
+                lib.root_module.addCSourceFiles(.{
+                    .root = assimp.path(""),
+                    .files = &@field(sources.libraries, ext_lib.name),
+                    .flags = &sources.zlib_flags,
+                });
+            }
         } else {
             lib.root_module.addCSourceFiles(.{
                 .root = assimp.path(""),
@@ -196,6 +206,13 @@ const sources = struct {
         "-D_GNU_SOURCE",
         "-Wall",
         "-Wextra",
+    };
+    const zlib_flags = [_][]const u8{
+        "-D_GNU_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Wno-deprecated-non-prototype",
+        "-Wno-implicit-function-declaration",
     };
     const common = [_][]const u8{
         "code/CApi/AssimpCExport.cpp",
